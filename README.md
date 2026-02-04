@@ -1,28 +1,58 @@
-# NCL Cancer Alliance Project Template
+# Ingestion COSD (HTML Files)
 
-This git repository contains a shell that should be used as the default structure for new projects
-in the analytical team.  It won't fit all circumstances perfectly, and you can make changes and issue a 
-pull request for new features / changes.
+Ingestion pipeline for to extract data tables from the COSD HTML files (including both data in tables and plots).
 
-The aim of this template is two-fold: firstly to give a common structure for analytical projects to aid
-reproducibility, secondly to allow for additional security settings as default to prevent accidental upload of files that should not be committed to Git and GitHub.
+## Quick Start
+ ```bash
+# Clone and setup
+git clone https://github.com/ncl-cancer-alliance/ingestion_cosd
 
-__Please update/replace this README file with one relevant to your project__
+#Setup virtual environment (venv)
+python -m venv venv
 
-## To use this template, please use the following practises:
+#Enable virutal environment (venv)
+Set-ExecutionPolicy Unrestricted -Scope Process;  venv\Scripts\activate
 
-* Put any data files in the `data` folder.  This folder is explicitly named in the .gitignore file.  A further layer of security is that all xls, xlsx, csv and pdf files are also explicit ignored in the whole folder as well.  ___If you need to commit one of these files, you must use the `-f` (force) command in `commit`, but you must be sure there is no identifiable data.__
-* Save any documentation in the `docs` file.  This does not mean you should avoid commenting your code, but if you have an operating procedure or supporting documents, add them to this folder.
-* Please save all output: data, formatted tables, graphs etc. in the output folder.  This is also implicitly ignored by git, but you can use the `-f` (force) command in `commit` to add any you wish to publish to github.
+#Install the project packages to the virtual environment
+pip install ./requirements.txt -r
+
+#Manually install the snowflake-connector-python package (this prevents having to authenticate via the Snowflake browser multiple times)
+pip install snowflake-connector-python[secure-local-storage]
+```
+
+If using the team SharePoint as the source for the COSD HTML files, the team SharePoint folder needs to be added to your local file explorer for the code to access ([Guide](https://support.microsoft.com/en-us/office/add-shortcuts-to-shared-folders-in-onedrive-d66b1347-99b7-4470-9360-ffc048d35a33)).
+
+The expected path to the data files is (where the bold fields are set in the .env file): `C:\Users\$USERNAME$\$NHS_ONEDRIVE_DIR$\$WORK_DIR$\...\$DATA_SOURCE_DIR$`
 
 
-### Please also consider the following:
-* Linting your code.  This is a formatting process that follows a rule set.  We broadly encourage the tidyverse standard, and recommend the `lintr` package.
-* Comment your code to make sure others can follow.
-* Consider your naming conventions: we recommend `snake case` where spaces are replaced by underscores and no capitals are use. E.g. `outpatient_referral_data`
 
+## What This Project Does
+Processes the nationally distributed COSD HTML files. These files contain data tables and interactive visuals containing underlying data which is parsed from the HTML source code and output as csv files and uploaded to the Snowflake environment as standalone tables.
 
-This repository is dual licensed under the [Open Government v3]([https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/) & MIT. All code can outputs are subject to Crown Copyright.
+The destination table schema is currently: `DATA_LAKE__NCL.CANCER__COSD_HTML`
+
+## Usage
+### Source File Structure
+This code assumes the following file structure is used:
+* COSD HTML files saved in a SharePoint location
+* The files are contained within a directory containing both a "processed" and "unprocessed" folder.
+
+For example (if you save the files in a directory called "COSD HTML"):
+```
+C:/Users/your-user-name/one-drive-dir-name/SharePoint-parent-folder/.../COSD HTML/
+├── processed/
+└── unprocessed/
+    ├── 2026_1_XXX_My_Hospital.html
+    ├── 2026_1_YYY_My_Other_Hospital.html
+    └── 2026_2_XXX_My_Hospital.html
+```
+
+_When the code is ran, it will build the subdirectories required within processed if they do not already exist._
+
+### Process
+1. Save the new HTML files in the unprocessed directory
+2. Enable the virutal environment in your directory
+3. Run the src/main.py script (The terminal should display progress as the code runs)
 
 ## Scripting Guidance
 
@@ -32,28 +62,15 @@ The Internal Scripting Guide is available here: [Internal Scripting Guide](https
 
 ## Changelog
 
-### [1.0.0] - 2025-04-08
+### [1.0.0] - 2026-02-04
 #### Added
-- Initial release of the project template
+- Initial release of the code
 
-### [1.1.0] - 2025-05-15
-#### Added
-- Added sample.env file to the template
-#### Modified
-- Added toml to requirements.txt file
-
-### [1.1.1] - 2025-05-28
-#### Modified
-- References to the NCL ICB scripting documentation have been replaced with the internal documentation.
-
-### [1.2.0] - 2025-07-17
-#### Added
-- Updated requirements.txt to better support snowflake packages
-
-*The contents and structure of this template were largely based on the template used by the NCL ICB Analytics team available here: [NCL ICB Project Template](https://github.com/ncl-icb-analytics/ncl_project)*
 
 ## Licence
 This repository is dual licensed under the [Open Government v3]([https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/) & MIT. All code can outputs are subject to Crown Copyright.
 
 ## Contact
 Jake Kealey - jake.kealey@nhs.net
+
+*The contents and structure of this template were largely based on the template used by the NCL ICB Analytics team available here: [NCL ICB Project Template](https://github.com/ncl-icb-analytics/ncl_project)*

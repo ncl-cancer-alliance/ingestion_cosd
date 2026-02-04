@@ -1,5 +1,4 @@
-title = "MY PROJECT"
-
-[database]
-sql_dsn = "SANDPIT"
-sql_database = "Data_Lab_NCL_Dev"
+[project]
+name = "ingestion_cosd"
+version = "1.0.0"
+readme = "README.md"
